@@ -8,10 +8,9 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import useAuth from "./firebase/useAuth";
-import { AccountCircle } from "@mui/icons-material";
 import { auth } from "./firebase/config";
 import Loading from "./Loading";
-import { Avatar, Container } from "@mui/material";
+import { Avatar } from "@mui/material";
 
 export default function NavBar() {
   const { user } = useAuth();

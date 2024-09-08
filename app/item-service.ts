@@ -5,6 +5,8 @@ import {
   collection,
   deleteDoc,
   getDocs,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from "firebase/firestore";
 
 export type ItemType = {
@@ -44,10 +46,11 @@ export async function getItems(
   userId: string,
 ): Promise<Response<ItemType[] | null> | null> {
   const querySnapshot = await getDocs(collection(firestoreDb, userId));
-  const items = [] as any[];
-  querySnapshot.forEach((doc: any) =>
-    items.push({ ...doc.data(), id: doc.id }),
-  );
+  const items = [] as ItemType[];
+  querySnapshot.forEach((doc:QueryDocumentSnapshot<DocumentData, DocumentData>) =>{
+    const data = doc.data();
+    items.push({ name: data.name, cost: data.cost, id: doc.id });
+  });
   return { status: 200, data: items };
 }
 

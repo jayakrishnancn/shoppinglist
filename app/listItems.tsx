@@ -1,13 +1,16 @@
 import { Box, Button } from "@mui/material";
 import { DataGrid, GridColDef, useGridApiContext } from "@mui/x-data-grid";
+import { ItemType } from "./item-service";
+
+type ListItemProps =  {
+  rows: ItemType[];
+  onDelete: (ids: string[]) => void;
+};
 
 export default function ListItem({
   rows,
   onDelete,
-}: {
-  rows: any;
-  onDelete: (ids: string[]) => void;
-}) {
+}:ListItemProps) {
   const columns: GridColDef[] = [
     { field: "name", headerName: "Item", width: 130 },
     {
@@ -35,7 +38,7 @@ export default function ListItem({
   );
 }
 
-function CustomToolbar({ onDelete }: any) {
+function CustomToolbar({ onDelete }: Pick<ListItemProps,"onDelete">) {
   const apiRef = useGridApiContext();
   const selectedRows = Array.from(
     apiRef.current?.getSelectedRows().keys() || [],
@@ -45,7 +48,7 @@ function CustomToolbar({ onDelete }: any) {
   return (
     <Box mb={1} display="flex" justifyContent="end">
       <Button
-        onClick={() => onDelete(selectedRows)}
+        onClick={() => onDelete(selectedRows.map(i=>i.toString()))}
         color="error"
         variant="outlined"
         disabled={!hasRowSelection}

@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext } from "react";
 // Create a Metadata Context
 const MetadataContext = createContext({
   isLoading: false,
-  setIsLoading: (_: boolean) => {},
+  setIsLoading: (_:boolean) => {},
 });
 
 // Custom hook to use the Metadata Context

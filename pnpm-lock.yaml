@@ -54,6 +54,9 @@ importers:
       eslint-config-next:
         specifier: 14.2.8
         version: 14.2.8(eslint@8.57.0)(typescript@5.5.4)
+      eslint-plugin-react:
+        specifier: ^7.35.2
+        version: 7.35.2(eslint@8.57.0)
       postcss:
         specifier: ^8
         version: 8.4.45
