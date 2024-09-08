@@ -7,6 +7,7 @@ import {
   deleteItems,
   getItems,
   ItemType,
+  Response,
   saveItem,
   updateItems,
 } from "./item-service";
@@ -19,13 +20,16 @@ export default function Dashboard() {
   const { user } = useAuth();
   const userId = user?.uid ?? "";
 
+  const setDataItemFromRes = (res: Response<ItemType[] | null> | null) => {
+    setData(res?.data ?? []);
+  };
   const getItemsFromServer = (userId: string) => {
     if (!userId) {
       return;
     }
     setIsLoading(true);
     getItems(userId)
-      .then((res) => setData(res?.data ?? []))
+      .then(setDataItemFromRes)
       .finally(() => {
         setIsLoading(false);
       });
@@ -43,7 +47,7 @@ export default function Dashboard() {
   const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
     return saveItem(userId, item)
-      .then((_) => getItemsFromServer(userId))
+      .then(setDataItemFromRes)
       .finally(() => {
         setIsLoading(false);
       });
@@ -53,7 +57,7 @@ export default function Dashboard() {
     console.log(ids);
     setIsLoading(true);
     return deleteItems(userId, ids)
-      .then(() => getItemsFromServer(userId))
+      .then(setDataItemFromRes)
       .finally(() => {
         setIsLoading(false);
       });

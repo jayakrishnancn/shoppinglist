@@ -10,7 +10,6 @@ export type FormProps = {
 };
 
 export default function Form({ onSubmit }: FormProps) {
-  console.log("rendering Form");
   const inputRef = useRef<HTMLInputElement>(null);
   const formik = useFormik({
     initialValues: {
