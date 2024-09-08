@@ -1,40 +1,17 @@
 "use client";
-import { Box, Container } from "@mui/material";
-import ListItem from "./listItems";
-import Form from "./Form";
-import { useEffect, useState } from "react";
-import { getItems, ItemType, saveItem } from "./item-service";
-
-const userId = "id-1";
+import { Container } from "@mui/material";
+import { Login } from "./Login";
+import Dashboard from "./dashboard/page";
+import useAuth from "./firebase/useAuth";
 
 export default function Home() {
-  console.log("rendering Home");
-  const [data, setData] = useState<ItemType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
 
-  const getItemsFromServer = (userId: string) => {
-    setLoading(true);
-    getItems(userId)
-      .then((res) => setData(res?.data ?? []))
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => () => getItemsFromServer(userId), []);
-
-  const handleSubmit = (item: ItemType) => {
-    saveItem(userId, item).then((_) => {
-      getItemsFromServer(userId);
-    });
-  };
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
-    <Container sx={{ mt: 1 }}>
-      <Box display="flex" flexDirection="column" gap={1}>
-        <Form onSubmit={handleSubmit} />
-        <ListItem rows={data} />
-      </Box>
-    </Container>
+    <Container sx={{ mt: 1 }}>{user ? <Dashboard /> : <Login />}</Container>
   );
 }
