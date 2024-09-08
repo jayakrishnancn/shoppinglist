@@ -1,8 +1,8 @@
 "use client";
 import { Container } from "@mui/material";
-import { Login } from "./Login";
-import Dashboard from "./dashboard/page";
+import Login from "./login/page";
 import useAuth from "./firebase/useAuth";
+import Dashboard from "./dashboard";
 
 export default function Home() {
   const { user, loading } = useAuth();

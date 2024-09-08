@@ -34,7 +34,6 @@ export default function Form({ onSubmit }: FormProps) {
         <TextField
           value={formik.values.cost}
           type="number"
-          autoFocus
           required
           onChange={formik.handleChange}
           name="cost"

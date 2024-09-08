@@ -26,7 +26,7 @@ export async function saveItem(
 
 export async function getItems(
   userId: string,
-): Promise<Response<Array<ItemType> | null> | null> {
+): Promise<Response<ItemType[] | null> | null> {
   try {
     console.log("fetching...", userId);
     let data: ItemType[] | null = JSON.parse(
@@ -35,4 +35,17 @@ export async function getItems(
     return Promise.resolve({ status: 200, data });
   } catch {}
   return null;
+}
+
+export async function deleteItem(
+  userId: string,
+  id: string,
+): Promise<Response<ItemType[]>> {
+  console.log("Deleting...", userId, id);
+  const items = ((await getItems(userId))?.data || []).filter(
+    (i) => i.id !== id,
+  );
+  sessionStorage.setItem(userId, JSON.stringify(items));
+
+  return Promise.resolve({ status: 200, data: items });
 }
