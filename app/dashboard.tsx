@@ -3,7 +3,13 @@ import { Box, Container } from "@mui/material";
 import ListItem from "./listItems";
 import Form from "./Form";
 import { useEffect, useMemo, useState } from "react";
-import { deleteItems, getItems, ItemType, saveItem } from "./item-service";
+import {
+  deleteItems,
+  getItems,
+  ItemType,
+  saveItem,
+  updateItems,
+} from "./item-service";
 import useAuth from "./firebase/useAuth";
 import { useMetadata } from "./contexts/metadata";
 
@@ -53,6 +59,16 @@ export default function Dashboard() {
       });
   };
 
+  const handleUpdate = (newData: ItemType) => {
+    console.log(newData);
+    setIsLoading(true);
+    return updateItems(userId, newData)
+      .then(() => getItemsFromServer(userId))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
     <Container sx={{ mt: 2 }}>
       <Box display="flex" flexDirection="column" gap={1}>
@@ -60,7 +76,7 @@ export default function Dashboard() {
         <Box my={1}>
           Total: <b>{new Intl.NumberFormat().format(total)}</b>
         </Box>
-        <ListItem rows={data} onDelete={handleDelete} />
+        <ListItem rows={data} onDelete={handleDelete} onUpdate={handleUpdate} />
       </Box>
     </Container>
   );

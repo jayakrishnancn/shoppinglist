@@ -7,6 +7,7 @@ import {
   getDocs,
   QueryDocumentSnapshot,
   DocumentData,
+  updateDoc,
 } from "firebase/firestore";
 
 export type ItemType = {
@@ -47,11 +48,24 @@ export async function getItems(
 ): Promise<Response<ItemType[] | null> | null> {
   const querySnapshot = await getDocs(collection(firestoreDb, userId));
   const items = [] as ItemType[];
-  querySnapshot.forEach((doc:QueryDocumentSnapshot<DocumentData, DocumentData>) =>{
-    const data = doc.data();
-    items.push({ name: data.name, cost: data.cost, id: doc.id });
-  });
+  querySnapshot.forEach(
+    (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) => {
+      const data = doc.data();
+      items.push({ name: data.name, cost: data.cost, id: doc.id });
+    },
+  );
   return { status: 200, data: items };
+}
+
+export async function updateItems(
+  userId: string,
+  item: ItemType,
+): Promise<Response<null>> {
+  console.log("Update Items...", item);
+  const docRef = doc(firestoreDb, userId, item.id);
+  await updateDoc(docRef, item);
+
+  return Promise.resolve({ status: 200, data: null });
 }
 
 export async function deleteItems(
