@@ -25,8 +25,8 @@ export async function saveItem(
   userId: string,
   itemData: ItemType,
 ): Promise<Response<null>> {
-  console.log("saving...", userId, itemData);
   const { id, ...item } = itemData;
+  console.log("saving...", userId, id, item);
 
   return addDoc(collection(firestoreDb, userId), item)
     .then(() => {
@@ -63,7 +63,7 @@ export async function updateItems(
   itemData: ItemType,
 ): Promise<Response<null>> {
   const { id, ...item } = itemData;
-  console.log("Update Items...", itemData);
+  console.log("Update Items...", id, item);
   const docRef = doc(firestoreDb, userId, id);
   await updateDoc(docRef, item);
 
