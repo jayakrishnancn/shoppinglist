@@ -1,14 +1,15 @@
 "use client";
-import { Box, Container } from "@mui/material";
+import { Backdrop, Box, CircularProgress, Container } from "@mui/material";
 import ListItem from "./listItems";
 import Form from "./Form";
 import { useEffect, useMemo, useState } from "react";
 import { deleteItems, getItems, ItemType, saveItem } from "./item-service";
 import useAuth from "./firebase/useAuth";
+import { useMetadata } from "./contexts/metadata";
 
 export default function Dashboard() {
   const [data, setData] = useState<ItemType[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { setIsLoading } = useMetadata();
   const { user } = useAuth();
   const userId = user?.uid ?? "";
 
@@ -16,11 +17,11 @@ export default function Dashboard() {
     if (!userId) {
       return;
     }
-    setLoading(true);
+    setIsLoading(true);
     getItems(userId)
       .then((res) => setData(res?.data ?? []))
       .finally(() => {
-        setLoading(false);
+        setIsLoading(false);
       });
   };
 
@@ -34,27 +35,23 @@ export default function Dashboard() {
   );
 
   const handleSubmit = (item: ItemType) => {
-    setLoading(true);
+    setIsLoading(true);
     saveItem(userId, item)
       .then((_) => getItemsFromServer(userId))
       .finally(() => {
-        setLoading(false);
+        setIsLoading(false);
       });
   };
 
   const handleDelete = (ids: string[]) => {
     console.log(ids);
-    setLoading(true);
+    setIsLoading(true);
     deleteItems(userId, ids)
       .then(() => getItemsFromServer(userId))
       .finally(() => {
-        setLoading(false);
+        setIsLoading(false);
       });
   };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Container sx={{ mt: 2 }}>

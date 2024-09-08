@@ -1,4 +1,5 @@
 "use client";
+
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -6,11 +7,10 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
 import useAuth from "./firebase/useAuth";
 import { AccountCircle } from "@mui/icons-material";
 import { auth } from "./firebase/config";
-import Link from "next/link";
+import Loading from "./Loading";
 
 export default function NavBar() {
   const { user } = useAuth();
@@ -28,6 +28,7 @@ export default function NavBar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
+      <Loading />
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
