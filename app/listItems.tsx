@@ -1,10 +1,5 @@
 import { Box, Button } from "@mui/material";
-import {
-  DataGrid,
-  GridColDef,
-  GridRenderCellParams,
-  useGridApiContext,
-} from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiContext } from "@mui/x-data-grid";
 
 export default function ListItem({
   rows,
@@ -19,31 +14,6 @@ export default function ListItem({
       field: "cost",
       headerName: "Cost",
       type: "number",
-      width: 90,
-    },
-    {
-      field: "id",
-      headerName: "Action",
-      renderCell: (params: GridRenderCellParams<any, string>) => {
-        const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
-          e.stopPropagation();
-          if (!params.value) {
-            return;
-          }
-          onDelete([params.value]);
-        };
-        return (
-          <Button
-            size="small"
-            sx={{}}
-            onClick={handleDelete}
-            variant="contained"
-            color="error"
-          >
-            Delete
-          </Button>
-        );
-      },
     },
   ];
 
@@ -73,7 +43,7 @@ function CustomToolbar({ onDelete }: any) {
   const hasRowSelection = selectedRows.length > 0;
 
   return (
-    <Box mb={1}>
+    <Box mb={1} display="flex" justifyContent="end">
       <Button
         onClick={() => onDelete(selectedRows)}
         color="error"

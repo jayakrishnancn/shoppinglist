@@ -11,6 +11,7 @@ import useAuth from "./firebase/useAuth";
 import { AccountCircle } from "@mui/icons-material";
 import { auth } from "./firebase/config";
 import Loading from "./Loading";
+import { Avatar, Container } from "@mui/material";
 
 export default function NavBar() {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ export default function NavBar() {
       });
   };
 
+  console.log(user);
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Loading />
@@ -35,16 +37,23 @@ export default function NavBar() {
             Shopping List
           </Typography>
           {user && (
-            <Box>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
+            <Box display="flex" gap={2}>
+              <Box>
+                <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  color="inherit"
+                >
+                  <Avatar
+                    alt={user.displayName ?? ""}
+                    src={user.photoURL ?? ""}
+                  />
+                </IconButton>
+
+                {user.displayName}
+              </Box>
               <Button onClick={handleLogout} color="inherit">
                 Logout
               </Button>

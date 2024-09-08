@@ -57,7 +57,7 @@ export default function Dashboard() {
     <Container sx={{ mt: 2 }}>
       <Box display="flex" flexDirection="column" gap={1}>
         <Form onSubmit={handleSubmit} />
-        <div>Total: {total}</div>
+        <Box my={1}>Total: {total}</Box>
         <ListItem rows={data} onDelete={handleDelete} />
       </Box>
     </Container>
