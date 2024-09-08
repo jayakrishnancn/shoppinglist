@@ -23,9 +23,10 @@ export type Response<T> = {
 
 export async function saveItem(
   userId: string,
-  item: ItemType,
+  itemData: ItemType,
 ): Promise<Response<null>> {
-  console.log("saving...", userId, item);
+  console.log("saving...", userId, itemData);
+  const { id, ...item } = itemData;
 
   return addDoc(collection(firestoreDb, userId), item)
     .then(() => {
@@ -59,10 +60,11 @@ export async function getItems(
 
 export async function updateItems(
   userId: string,
-  item: ItemType,
+  itemData: ItemType,
 ): Promise<Response<null>> {
-  console.log("Update Items...", item);
-  const docRef = doc(firestoreDb, userId, item.id);
+  const { id, ...item } = itemData;
+  console.log("Update Items...", itemData);
+  const docRef = doc(firestoreDb, userId, id);
   await updateDoc(docRef, item);
 
   return Promise.resolve({ status: 200, data: null });

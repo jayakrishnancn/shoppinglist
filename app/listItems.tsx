@@ -8,6 +8,23 @@ type ListItemProps = {
   onUpdate: (newValue: ItemType) => Promise<void>;
 };
 
+function shallowEqual(obj1: any, obj2: any) {
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  for (let key of keys1) {
+    if (obj1[key] !== obj2[key]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
   const columns: GridColDef[] = [
     { field: "name", headerName: "Item", editable: true, flex: 1 },
@@ -30,8 +47,10 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
         autoPageSize
         editMode="row"
         checkboxSelection
-        processRowUpdate={(newItem) => {
-          onUpdate(newItem);
+        processRowUpdate={(newItem, prevItem) => {
+          if (!shallowEqual(newItem, prevItem)) {
+            onUpdate(newItem);
+          }
           return newItem;
         }}
         sx={{ border: 0 }}

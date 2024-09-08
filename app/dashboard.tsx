@@ -40,7 +40,7 @@ export default function Dashboard() {
     [data],
   );
 
-  const handleSubmit = (item: ItemType) => {
+  const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
     return saveItem(userId, item)
       .then((_) => getItemsFromServer(userId))
@@ -49,7 +49,7 @@ export default function Dashboard() {
       });
   };
 
-  const handleDelete = (ids: string[]) => {
+  const handleDelete = async (ids: string[]) => {
     console.log(ids);
     setIsLoading(true);
     return deleteItems(userId, ids)
@@ -59,7 +59,7 @@ export default function Dashboard() {
       });
   };
 
-  const handleUpdate = (newData: ItemType) => {
+  const handleUpdate = async (newData: ItemType) => {
     console.log(newData);
     setIsLoading(true);
     return updateItems(userId, newData)
