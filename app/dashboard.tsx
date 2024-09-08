@@ -57,7 +57,9 @@ export default function Dashboard() {
     <Container sx={{ mt: 2 }}>
       <Box display="flex" flexDirection="column" gap={1}>
         <Form onSubmit={handleSubmit} />
-        <Box my={1}>Total: {total}</Box>
+        <Box my={1}>
+          Total: <b>{new Intl.NumberFormat().format(total)}</b>
+        </Box>
         <ListItem rows={data} onDelete={handleDelete} />
       </Box>
     </Container>
