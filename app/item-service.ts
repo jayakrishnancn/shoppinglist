@@ -1,3 +1,12 @@
+import { firestoreDb } from "./firebase/config";
+import {
+  addDoc,
+  doc,
+  collection,
+  deleteDoc,
+  getDocs,
+} from "firebase/firestore";
+
 export type ItemType = {
   id: string;
   name: string;
@@ -9,43 +18,49 @@ export type Response<T> = {
   data: T;
 };
 
-const randomString = () => Math.random().toString(36).substring(2, 12);
-
 export async function saveItem(
   userId: string,
   item: ItemType,
-): Promise<Response<ItemType>> {
+): Promise<Response<null>> {
   console.log("saving...", userId, item);
-  const items = (await getItems(userId))?.data || [];
-  console.log(items);
-  items.push({ ...item, id: randomString() });
-  sessionStorage.setItem(userId, JSON.stringify(items));
 
-  return Promise.resolve({ status: 200, data: item });
+  return addDoc(collection(firestoreDb, userId), item)
+    .then(() => {
+      return {
+        status: 200,
+        data: null,
+      };
+    })
+    .catch((error) => {
+      console.log(error);
+      return {
+        status: 500,
+        data: null,
+      };
+    });
 }
 
 export async function getItems(
   userId: string,
 ): Promise<Response<ItemType[] | null> | null> {
-  try {
-    console.log("fetching...", userId);
-    let data: ItemType[] | null = JSON.parse(
-      sessionStorage.getItem(userId) || "null",
-    );
-    return Promise.resolve({ status: 200, data });
-  } catch {}
-  return null;
+  const querySnapshot = await getDocs(collection(firestoreDb, userId));
+  const items = [] as any[];
+  querySnapshot.forEach((doc: any) =>
+    items.push({ ...doc.data(), id: doc.id }),
+  );
+  return { status: 200, data: items };
 }
 
 export async function deleteItems(
   userId: string,
   ids: string[],
-): Promise<Response<ItemType[]>> {
+): Promise<Response<null>> {
   console.log("Deleting...", userId, ids);
-  const items = ((await getItems(userId))?.data || []).filter(
-    (i) => !ids.includes(i.id),
-  );
-  sessionStorage.setItem(userId, JSON.stringify(items));
 
-  return Promise.resolve({ status: 200, data: items });
+  const responses = ids.map((id) => {
+    deleteDoc(doc(firestoreDb, userId, id));
+  });
+  await Promise.all(responses);
+
+  return Promise.resolve({ status: 200, data: null });
 }

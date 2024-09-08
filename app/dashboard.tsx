@@ -4,15 +4,18 @@ import ListItem from "./listItems";
 import Form from "./Form";
 import { useEffect, useMemo, useState } from "react";
 import { deleteItems, getItems, ItemType, saveItem } from "./item-service";
-
-const userId = "id-1";
+import useAuth from "./firebase/useAuth";
 
 export default function Dashboard() {
-  console.log("rendering Home");
   const [data, setData] = useState<ItemType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const userId = user?.uid ?? "";
 
   const getItemsFromServer = (userId: string) => {
+    if (!userId) {
+      return;
+    }
     setLoading(true);
     getItems(userId)
       .then((res) => setData(res?.data ?? []))
@@ -21,7 +24,7 @@ export default function Dashboard() {
       });
   };
 
-  useEffect(() => () => getItemsFromServer(userId), []);
+  useEffect(() => getItemsFromServer(userId), [userId]);
   const total = useMemo(
     () =>
       data && data.length > 0
@@ -38,6 +41,7 @@ export default function Dashboard() {
         setLoading(false);
       });
   };
+
   const handleDelete = (ids: string[]) => {
     console.log(ids);
     setLoading(true);
