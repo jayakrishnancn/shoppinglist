@@ -3,7 +3,13 @@ import { Box, Container } from "@mui/material";
 import ListItem from "./listItems";
 import Form from "./Form";
 import { useEffect, useMemo, useState } from "react";
-import { deleteItem, getItems, ItemType, saveItem } from "./item-service";
+import {
+  deleteItem,
+  deleteItems,
+  getItems,
+  ItemType,
+  saveItem,
+} from "./item-service";
 
 const userId = "id-1";
 
@@ -38,9 +44,10 @@ export default function Dashboard() {
         setLoading(false);
       });
   };
-  const handleDelete = (id: string) => {
+  const handleDelete = (ids: string[]) => {
+    console.log(ids);
     setLoading(true);
-    deleteItem(userId, id)
+    deleteItems(userId, ids)
       .then(() => getItemsFromServer(userId))
       .finally(() => {
         setLoading(false);

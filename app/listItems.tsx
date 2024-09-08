@@ -1,12 +1,20 @@
 import { Box, Button } from "@mui/material";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { ItemType } from "./item-service";
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  useGridApiContext,
+} from "@mui/x-data-grid";
 
-const paginationModel = { page: 0, pageSize: 5 };
-
-export default function ListItem({ rows, onDelete }: any) {
+export default function ListItem({
+  rows,
+  onDelete,
+}: {
+  rows: any;
+  onDelete: (ids: string[]) => void;
+}) {
   const columns: GridColDef[] = [
-    { field: "name", headerName: "First name", width: 130 },
+    { field: "name", headerName: "Item", width: 130 },
     {
       field: "cost",
       headerName: "Cost",
@@ -22,10 +30,16 @@ export default function ListItem({ rows, onDelete }: any) {
           if (!params.value) {
             return;
           }
-          onDelete(params.value);
+          onDelete([params.value]);
         };
         return (
-          <Button onClick={handleDelete} variant="contained" color="error">
+          <Button
+            size="small"
+            sx={{}}
+            onClick={handleDelete}
+            variant="contained"
+            color="error"
+          >
             Delete
           </Button>
         );
@@ -34,15 +48,40 @@ export default function ListItem({ rows, onDelete }: any) {
   ];
 
   return (
-    <Box sx={{ height: 520, width: "100%" }}>
+    <Box sx={{ height: 520, width: "100%", p: 1, border: "1px solid #ccc" }}>
       <DataGrid
         rows={rows}
+        density="compact"
         columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
+        pagination
+        autoPageSize
         checkboxSelection
         sx={{ border: 0 }}
+        slots={{
+          toolbar: () => <CustomToolbar onDelete={onDelete} />,
+        }}
       />
+    </Box>
+  );
+}
+
+function CustomToolbar({ onDelete }: any) {
+  const apiRef = useGridApiContext();
+  const selectedRows = Array.from(
+    apiRef.current?.getSelectedRows().keys() || [],
+  );
+  const hasRowSelection = selectedRows.length > 0;
+
+  return (
+    <Box mb={1}>
+      <Button
+        onClick={() => onDelete(selectedRows)}
+        color="error"
+        variant="outlined"
+        disabled={!hasRowSelection}
+      >
+        Delete Selected
+      </Button>
     </Box>
   );
 }

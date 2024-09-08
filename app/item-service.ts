@@ -37,13 +37,13 @@ export async function getItems(
   return null;
 }
 
-export async function deleteItem(
+export async function deleteItems(
   userId: string,
-  id: string,
+  ids: string[],
 ): Promise<Response<ItemType[]>> {
-  console.log("Deleting...", userId, id);
+  console.log("Deleting...", userId, ids);
   const items = ((await getItems(userId))?.data || []).filter(
-    (i) => i.id !== id,
+    (i) => !ids.includes(i.id),
   );
   sessionStorage.setItem(userId, JSON.stringify(items));
 
