@@ -10,12 +10,13 @@ type ListItemProps = {
 
 export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Item", editable: true },
+    { field: "name", headerName: "Item", editable: true, flex: 1 },
     {
       field: "cost",
       headerName: "Cost",
       type: "number",
       editable: true,
+      headerAlign: "right",
     },
   ];
 

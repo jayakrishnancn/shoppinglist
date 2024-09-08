@@ -36,8 +36,8 @@ export default function NavBar() {
             Shopping List
           </Typography>
           {user && (
-            <Box display="flex" gap={2}>
-              <Box>
+            <Box display="flex" gap={1}>
+              <Box display="flex" justifyContent="center" alignItems="center">
                 <IconButton
                   size="large"
                   aria-label="account of current user"
