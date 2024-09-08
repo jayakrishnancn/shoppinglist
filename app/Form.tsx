@@ -3,20 +3,27 @@
 import { useFormik } from "formik";
 import { ItemType } from "./item-service";
 import { Alert, Box, Button, TextField } from "@mui/material";
+import { useRef } from "react";
 
 export type FormProps = {
-  onSubmit: (value: ItemType) => void;
+  onSubmit: (value: ItemType) => Promise<void>;
 };
 
 export default function Form({ onSubmit }: FormProps) {
   console.log("rendering Form");
+  const inputRef = useRef<HTMLInputElement>(null);
   const formik = useFormik({
     initialValues: {
       name: "",
       cost: 0,
       id: "",
     },
-    onSubmit,
+    onSubmit: (values, { resetForm }) => {
+      onSubmit(values).then(() => {
+        resetForm();
+        inputRef.current?.focus();
+      });
+    },
   });
 
   return (
@@ -28,6 +35,7 @@ export default function Form({ onSubmit }: FormProps) {
           required
           onChange={formik.handleChange}
           name="name"
+          inputRef={inputRef}
         />
         {formik.errors.name && <Alert severity="error">Invalid Name</Alert>}
 

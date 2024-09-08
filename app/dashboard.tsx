@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   const handleSubmit = (item: ItemType) => {
     setIsLoading(true);
-    saveItem(userId, item)
+    return saveItem(userId, item)
       .then((_) => getItemsFromServer(userId))
       .finally(() => {
         setIsLoading(false);
@@ -46,7 +46,7 @@ export default function Dashboard() {
   const handleDelete = (ids: string[]) => {
     console.log(ids);
     setIsLoading(true);
-    deleteItems(userId, ids)
+    return deleteItems(userId, ids)
       .then(() => getItemsFromServer(userId))
       .finally(() => {
         setIsLoading(false);
