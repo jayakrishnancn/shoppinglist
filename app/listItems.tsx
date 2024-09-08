@@ -5,7 +5,7 @@ import { ItemType } from "./item-service";
 type ListItemProps = {
   rows: ItemType[];
   onDelete: (ids: string[]) => void;
-  onUpdate: (newValue: ItemType[]) => void;
+  onUpdate: (newValue: ItemType) => Promise<void>;
 };
 
 export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
