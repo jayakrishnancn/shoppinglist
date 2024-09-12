@@ -1,5 +1,5 @@
 "use client";
-import { Box } from "@mui/material";
+import { Box, Button, ButtonGroup } from "@mui/material";
 import ListItemTable from "./listItems";
 import Form from "./Form";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -36,11 +36,20 @@ export default function Dashboard() {
   );
 
   useEffect(() => getItemsFromServer(userId), [userId, getItemsFromServer]);
-  const total = useMemo(
+  const { total, completed, future } = useMemo(
     () =>
       data && data.length > 0
-        ? data.reduce((sum, curr) => (curr.cost > 0 ? sum + curr.cost : sum), 0)
-        : 0,
+        ? data.reduce(
+            (prev, curr) => ({
+              total: prev.total + Math.max(curr.cost, 0),
+              completed:
+                prev.completed + (curr.status === "Completed" ? curr.cost : 0),
+              future:
+                prev.future + (curr.status !== "Completed" ? curr.cost : 0),
+            }),
+            { total: 0, completed: 0, future: 0 }
+          )
+        : { total: 0, completed: 0, future: 0 },
     [data]
   );
 
@@ -48,10 +57,12 @@ export default function Dashboard() {
     setIsLoading(true);
     return saveItem(userId, item)
       .then(() => getItemsFromServer(userId))
-      .then(() => toast.success("Added new item to list."))
+      .then(() =>
+        toast.success("Added new item to list.", { theme: "colored" })
+      )
       .catch((error) => {
         console.error(error);
-        toast.error("Error saving item to database.");
+        toast.error("Error saving item to database.", { theme: "colored" });
       })
       .finally(() => {
         setIsLoading(false);
@@ -63,10 +74,12 @@ export default function Dashboard() {
     setIsLoading(true);
     return deleteItems(userId, ids)
       .then(setData)
-      .then(() => toast.success("Deleted items from list."))
+      .then(() =>
+        toast.success("Deleted items from list.", { theme: "colored" })
+      )
       .catch((error) => {
         console.error(error);
-        toast.error("Error deleting list to database.");
+        toast.error("Error deleting list to database.", { theme: "colored" });
       })
       .finally(() => {
         setIsLoading(false);
@@ -77,10 +90,12 @@ export default function Dashboard() {
     setIsLoading(true);
     return updateItems(userId, newData)
       .then(setData)
-      .then(() => toast.success("Updated items of the list."))
+      .then(() =>
+        toast.success("Updated items of the list.", { theme: "colored" })
+      )
       .catch((error) => {
         console.error(error);
-        toast.error("Error updating items to database.");
+        toast.error("Error updating items to database.", { theme: "colored" });
       })
       .finally(() => {
         setIsLoading(false);
@@ -88,16 +103,43 @@ export default function Dashboard() {
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={1}>
-      <Form onSubmit={handleSubmit} />
+    <Box display="flex" flexDirection="column" gap={1} mb="100px">
       <Box my={1}>
-        Total: <b>{new Intl.NumberFormat().format(total)}</b>
+        <ButtonGroup
+          color="inherit"
+          fullWidth
+          size="small"
+          aria-label="Small button group"
+        >
+          <Button>
+            Pending: <b>{new Intl.NumberFormat().format(future)}</b>
+          </Button>
+          <Button>
+            Completed: <b>{new Intl.NumberFormat().format(completed)}</b>
+          </Button>
+          <Button>
+            Total: <b>{new Intl.NumberFormat().format(total)}</b>
+          </Button>
+        </ButtonGroup>
       </Box>
       <ListItemTable
         rows={data}
         onDelete={handleDelete}
         onUpdate={handleUpdates}
       />
+      <Box
+        position="fixed"
+        bottom={0}
+        right={0}
+        left={0}
+        bgcolor="#cbe5cc"
+        zIndex={10}
+        p={2}
+        display="flex"
+        justifyContent="center"
+      >
+        <Form onSubmit={handleSubmit} />
+      </Box>
     </Box>
   );
 }

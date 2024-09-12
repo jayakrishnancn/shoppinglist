@@ -1,4 +1,5 @@
 "use client";
+import { orange } from "@mui/material/colors";
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
@@ -7,7 +8,10 @@ const theme = createTheme({
   },
   palette: {
     primary: {
-      main: "#0171dc",
+      main: "#0171DC",
+    },
+    secondary: {
+      main: "#DC6B01",
     },
     success: {
       main: "#2fa834",

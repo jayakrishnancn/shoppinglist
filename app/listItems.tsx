@@ -51,16 +51,15 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
       type: "number",
       editable: true,
       headerAlign: "right",
-      minWidth: 120,
+      width: 120,
     },
     {
       field: "status",
       headerName: "Status",
       editable: true,
-      flex: 1,
       type: "singleSelect",
       valueOptions: STATUS,
-      minWidth: 150,
+      width: 150,
     },
     {
       field: "updatedAt",
@@ -68,8 +67,15 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
       editable: false,
       type: "dateTime",
       valueFormatter: (v) => new Date(v).toLocaleDateString(),
-      flex: 1,
-      minWidth: 130,
+      width: 130,
+    },
+    {
+      field: "createdAt",
+      headerName: "Created",
+      editable: false,
+      type: "date",
+      valueFormatter: (v) => new Date(v).toLocaleDateString(),
+      width: 130,
     },
   ];
 
