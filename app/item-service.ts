@@ -12,9 +12,9 @@ import { sortItems } from "./utils/sortItem";
 import { Cache } from "./utils/Cache";
 
 export type StatusType =
-  | "Todo - distant future"
-  | "Todo - near future"
-  | "In progress"
+  | "Todo - Near future"
+  | "Todo - Distant future"
+  | "In Progress"
   | "Completed"
   | "Unknown";
 

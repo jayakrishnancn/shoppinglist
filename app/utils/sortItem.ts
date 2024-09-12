@@ -1,8 +1,8 @@
 import { ItemType, StatusType } from "../item-service";
 export const STATUS: StatusType[] = [
-  "Todo - distant future",
-  "Todo - near future",
-  "In progress",
+  "Todo - Near future",
+  "Todo - Distant future",
+  "In Progress",
   "Completed",
   "Unknown",
 ];
