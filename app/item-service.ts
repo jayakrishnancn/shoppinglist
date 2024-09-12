@@ -23,11 +23,8 @@ export type ItemType = {
   name: string;
   cost: number;
   status: StatusType;
-};
-
-export type Response<T> = {
-  status: number;
-  data: T;
+  createdAt: number;
+  updatedAt: number;
 };
 
 const cache = new Cache();
@@ -44,24 +41,24 @@ export async function getItems(userId: string): Promise<ItemType[]> {
         cost: data.cost,
         id: doc.id,
         status: data.status ?? "UNKNOWN",
+        createdAt: data.createdAt || 0,
+        updatedAt: data.updatedAt || 0,
       });
     }
   );
-  items = sortItems(items, "status", "ASC");
+  items = sortItems(items, "updatedAt", "DESC");
+  items = sortItems(items, "status");
   cache.clear();
   cache.set(items);
   return cache.get();
 }
 
-export async function saveItem(
-  userId: string,
-  items: ItemType
-): Promise<ItemType[]> {
+export async function saveItem(userId: string, items: ItemType): Promise<void> {
   console.log("creating...", userId, items);
+  items.updatedAt = Date.now();
+  items.createdAt = Date.now();
   const { id, ...item } = items;
   await addDoc(collection(firestoreDb, userId), item);
-  cache.set([items]);
-  return cache.get();
 }
 
 export async function updateItems(
@@ -70,7 +67,10 @@ export async function updateItems(
 ): Promise<ItemType[]> {
   console.log("Updating...", userId, items);
   const batch = writeBatch(firestoreDb);
-  items.forEach(({ id, ...item }) => {
+  items.forEach((listItem) => {
+    listItem.updatedAt = Date.now();
+    listItem.createdAt = listItem.createdAt || Date.now();
+    const { id, ...item } = listItem;
     const docRef = doc(firestoreDb, userId, id);
     batch.update(docRef, item);
   });

@@ -1,13 +1,12 @@
 "use client";
 import { Box, Container } from "@mui/material";
-import ListItem from "./listItems";
+import ListItemTable from "./listItems";
 import Form from "./Form";
 import { useEffect, useMemo, useState } from "react";
 import {
   deleteItems,
   getItems,
   ItemType,
-  Response,
   saveItem,
   updateItems,
 } from "./item-service";
@@ -45,7 +44,7 @@ export default function Dashboard() {
   const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
     return saveItem(userId, item)
-      .then(setData)
+      .then(()=>getItemsFromServer(userId))
       .then(() => toast.info("Added new item to list."))
       .catch((error) => {
         console.error(error);
@@ -94,7 +93,7 @@ export default function Dashboard() {
         <Box my={1}>
           Total: <b>{new Intl.NumberFormat().format(total)}</b>
         </Box>
-        <ListItem
+        <ListItemTable
           rows={data}
           onDelete={handleDelete}
           onUpdate={handleUpdates}

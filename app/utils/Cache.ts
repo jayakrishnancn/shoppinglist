@@ -37,9 +37,10 @@ export class Cache {
   }
 
   updates(newItems: ItemType[]) {
+    debugger;
     newItems.forEach((newItem) => {
       this.items[newItem.id] = newItem;
     });
-    console.log("updated cache", newItems, this.items);
+    console.log("updated cache", this.items);
   }
 }

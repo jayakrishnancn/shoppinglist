@@ -10,6 +10,8 @@ import {
 import { DataGrid, GridColDef, useGridApiContext } from "@mui/x-data-grid";
 import { ItemType, StatusType } from "./item-service";
 import { STATUS } from "./utils/sortItem";
+import ConfirmationBox from "./components/ConfirmationBox";
+import { RemoveCircle } from "@mui/icons-material";
 
 type ListItemProps = {
   rows: ItemType[];
@@ -46,6 +48,14 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
       valueOptions: STATUS,
     },
     {
+      field: "updatedAt",
+      headerName: "Updated",
+      editable: false,
+      type: "dateTime",
+      valueFormatter: (v) => new Date(v).toLocaleString(),
+      flex: 1,
+    },
+    {
       field: "cost",
       headerName: "Cost",
       type: "number",
@@ -55,13 +65,12 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
   ];
 
   return (
-    <Box sx={{ height: 520, width: "100%", p: 1, border: "1px solid #ccc" }}>
+    <Box sx={{ height: 700, width: "100%", p: 1, border: "1px solid #ccc" }}>
       <DataGrid
         rows={rows}
         density="compact"
         columns={columns}
         pagination
-        autoPageSize
         editMode="row"
         checkboxSelection
         processRowUpdate={(newItem, prevItem) => {
@@ -88,9 +97,11 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
 function CustomToolbar({ onDelete, onUpdate }: ListItemProps) {
   const apiRef = useGridApiContext();
   const selectedRowValues = Array.from(
-    apiRef.current?.getSelectedRows().values(),
+    apiRef.current?.getSelectedRows().values()
   ) as ItemType[];
   const hasRowSelection = selectedRowValues.length > 0;
+
+  const handleDelete = () => onDelete(selectedRowValues.map((i) => i.id));
 
   return (
     <Box mb={1} justifyContent="end" display="flex" gap={1} p={1}>
@@ -110,25 +121,45 @@ function CustomToolbar({ onDelete, onUpdate }: ListItemProps) {
               selectedRowValues.map((value) => ({
                 ...value,
                 status: newStatus,
-              })),
+              }))
             );
           }}
           size="small"
         >
           {STATUS.map((value) => (
-            <MenuItem key={value as string} value={value}>{value}</MenuItem>
+            <MenuItem key={value as string} value={value}>
+              {value}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
-      <Button
-        size="small"
-        onClick={() => onDelete(selectedRowValues.map((i) => i.id))}
-        color="error"
-        variant="outlined"
-        disabled={!hasRowSelection}
-      >
-        Delete Selected
-      </Button>
+
+      <ConfirmationBox
+        title="Confirm"
+        description={
+          <Box>
+            <h2>Confirm removing selected items?</h2>
+            {selectedRowValues.map((item) => (
+              <Box display="flex" justifyContent="space-between" key={item.id}>
+                <div>{item.name}</div>
+                <div>&#2352;{item.cost}</div>
+              </Box>
+            ))}
+          </Box>
+        }
+        onConfirm={handleDelete}
+        button={(handleOpen) => (
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<RemoveCircle />}
+            onClick={handleOpen}
+            disabled={!hasRowSelection}
+          >
+            Remove Selected ?
+          </Button>
+        )}
+      />
     </Box>
   );
 }
