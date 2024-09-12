@@ -30,7 +30,7 @@ export default function Dashboard() {
       .finally(() => {
         setIsLoading(false);
       });
-  },[]);
+  },[setIsLoading]);
 
   useEffect(() => getItemsFromServer(userId), [userId, getItemsFromServer]);
   const total = useMemo(
