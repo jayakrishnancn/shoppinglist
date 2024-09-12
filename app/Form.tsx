@@ -2,7 +2,7 @@
 
 import { useFormik } from "formik";
 import { ItemType } from "./item-service";
-import { Alert, Box, Button, TextField } from "@mui/material";
+import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import { useRef } from "react";
 import { STATUS } from "./utils/sortItem";
 
@@ -48,6 +48,24 @@ export default function Form({ onSubmit }: FormProps) {
           name="cost"
         />
         {formik.errors.name && <Alert severity="error">Invalid Cost</Alert>}
+
+        <FormControl size="small">
+        <InputLabel id="change-status-form-label">Status</InputLabel>
+        <Select
+          labelId="change-status-form-label"
+          label="Status"
+          value={formik.values.status}
+          name="status"
+          onChange={formik.handleChange}
+          size="medium"
+        >
+          {STATUS.map((value) => (
+            <MenuItem key={value as string} value={value}>
+              {value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
         <Button variant="contained" type="submit" color="success">
           ADD

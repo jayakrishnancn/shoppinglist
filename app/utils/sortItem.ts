@@ -1,10 +1,10 @@
 import { ItemType, StatusType } from "../item-service";
 export const STATUS: StatusType[] = [
-  "TODO - Distant future",
-  "TODO - Near future",
-  "IN PROGRESS",
-  "COMPLETED",
-  "UNKNOWN",
+  "Todo - distant future",
+  "Todo - near future",
+  "In progress",
+  "Completed",
+  "Unknown",
 ];
 
 export function sortItems(

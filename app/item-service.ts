@@ -12,19 +12,19 @@ import { sortItems } from "./utils/sortItem";
 import { Cache } from "./utils/Cache";
 
 export type StatusType =
-  | "TODO - Distant future"
-  | "TODO - Near future"
-  | "IN PROGRESS"
-  | "COMPLETED"
-  | "UNKNOWN";
+  | "Todo - distant future"
+  | "Todo - near future"
+  | "In progress"
+  | "Completed"
+  | "Unknown";
 
 export type ItemType = {
   id: string;
   name: string;
   cost: number;
   status: StatusType;
-  createdAt: number;
-  updatedAt: number;
+  createdAt?: number;
+  updatedAt?: number;
 };
 
 const cache = new Cache();

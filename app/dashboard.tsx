@@ -38,13 +38,13 @@ export default function Dashboard() {
       data && data.length > 0
         ? data.reduce((sum, curr) => (curr.cost > 0 ? sum + curr.cost : sum), 0)
         : 0,
-    [data],
+    [data]
   );
 
   const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
     return saveItem(userId, item)
-      .then(()=>getItemsFromServer(userId))
+      .then(() => getItemsFromServer(userId))
       .then(() => toast.success("Added new item to list."))
       .catch((error) => {
         console.error(error);
@@ -60,8 +60,7 @@ export default function Dashboard() {
     setIsLoading(true);
     return deleteItems(userId, ids)
       .then(setData)
-      .then(() => 
-        toast.success("Deleted items from list."))
+      .then(() => toast.success("Deleted items from list."))
       .catch((error) => {
         console.error(error);
         toast.error("Error deleting list to database.");
@@ -75,8 +74,7 @@ export default function Dashboard() {
     setIsLoading(true);
     return updateItems(userId, newData)
       .then(setData)
-      .then((res) => 
-        toast.success("Updated items of the list."))
+      .then((res) => toast.success("Updated items of the list."))
       .catch((error) => {
         console.error(error);
         toast.error("Error updating items to database.");
