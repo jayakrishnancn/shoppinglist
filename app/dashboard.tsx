@@ -2,7 +2,7 @@
 import { Box, Container } from "@mui/material";
 import ListItemTable from "./listItems";
 import Form from "./Form";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   deleteItems,
   getItems,
@@ -20,7 +20,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const userId = user?.uid ?? "";
 
-  const getItemsFromServer = (userId: string) => {
+  const getItemsFromServer = useCallback((userId: string) => {
     if (!userId) {
       return;
     }
@@ -30,9 +30,9 @@ export default function Dashboard() {
       .finally(() => {
         setIsLoading(false);
       });
-  };
+  },[]);
 
-  useEffect(() => getItemsFromServer(userId), [userId]);
+  useEffect(() => getItemsFromServer(userId), [userId, getItemsFromServer]);
   const total = useMemo(
     () =>
       data && data.length > 0
@@ -74,7 +74,7 @@ export default function Dashboard() {
     setIsLoading(true);
     return updateItems(userId, newData)
       .then(setData)
-      .then((res) => toast.success("Updated items of the list."))
+      .then(() => toast.success("Updated items of the list."))
       .catch((error) => {
         console.error(error);
         toast.error("Error updating items to database.");

@@ -2,7 +2,7 @@
 
 import { useFormik } from "formik";
 import { ItemType } from "./item-service";
-import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
+import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useRef } from "react";
 import { STATUS } from "./utils/sortItem";
 

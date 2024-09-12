@@ -57,7 +57,7 @@ export async function saveItem(userId: string, items: ItemType): Promise<void> {
   console.log("creating...", userId, items);
   items.updatedAt = Date.now();
   items.createdAt = Date.now();
-  const { id, ...item } = items;
+  const { id: _, ...item } = items;
   await addDoc(collection(firestoreDb, userId), item);
 }
 
