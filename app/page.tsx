@@ -12,6 +12,8 @@ export default function Home() {
   }
 
   return (
-    <Container sx={{ mt: 1 }}>{user ? <Dashboard /> : <Login />}</Container>
+    <Container sx={{ mt: 1, p: 1 }}>
+      {user ? <Dashboard /> : <Login />}
+    </Container>
   );
 }

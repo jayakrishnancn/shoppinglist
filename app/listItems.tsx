@@ -38,22 +38,12 @@ function shallowEqual(obj1: any, obj2: any) {
 
 export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Item", editable: true, flex: 1 },
     {
-      field: "status",
-      headerName: "Status",
+      field: "name",
+      headerName: "Item",
       editable: true,
       flex: 1,
-      type: "singleSelect",
-      valueOptions: STATUS,
-    },
-    {
-      field: "updatedAt",
-      headerName: "Updated",
-      editable: false,
-      type: "dateTime",
-      valueFormatter: (v) => new Date(v).toLocaleString(),
-      flex: 1,
+      minWidth: 200,
     },
     {
       field: "cost",
@@ -61,11 +51,37 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
       type: "number",
       editable: true,
       headerAlign: "right",
+      minWidth: 120,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      editable: true,
+      flex: 1,
+      type: "singleSelect",
+      valueOptions: STATUS,
+      minWidth: 150,
+    },
+    {
+      field: "updatedAt",
+      headerName: "Updated",
+      editable: false,
+      type: "dateTime",
+      valueFormatter: (v) => new Date(v).toLocaleDateString(),
+      flex: 1,
+      minWidth: 130,
     },
   ];
 
   return (
-    <Box sx={{ height: 700, width: "100%", p: 1, border: "1px solid #ccc" }}>
+    <Box
+      sx={{
+        height: 700,
+        width: "100%",
+        border: "2px solid #eee",
+        borderRadius: 2,
+      }}
+    >
       <DataGrid
         rows={rows}
         density="compact"

@@ -1,5 +1,5 @@
 "use client";
-import { Box, Container } from "@mui/material";
+import { Box } from "@mui/material";
 import ListItemTable from "./listItems";
 import Form from "./Form";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -20,17 +20,20 @@ export default function Dashboard() {
   const { user } = useAuth();
   const userId = user?.uid ?? "";
 
-  const getItemsFromServer = useCallback((userId: string) => {
-    if (!userId) {
-      return;
-    }
-    setIsLoading(true);
-    getItems(userId)
-      .then(setData)
-      .finally(() => {
-        setIsLoading(false);
-      });
-  },[setIsLoading]);
+  const getItemsFromServer = useCallback(
+    (userId: string) => {
+      if (!userId) {
+        return;
+      }
+      setIsLoading(true);
+      getItems(userId)
+        .then(setData)
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [setIsLoading]
+  );
 
   useEffect(() => getItemsFromServer(userId), [userId, getItemsFromServer]);
   const total = useMemo(
@@ -85,18 +88,16 @@ export default function Dashboard() {
   };
 
   return (
-    <Container sx={{ mt: 2 }}>
-      <Box display="flex" flexDirection="column" gap={1}>
-        <Form onSubmit={handleSubmit} />
-        <Box my={1}>
-          Total: <b>{new Intl.NumberFormat().format(total)}</b>
-        </Box>
-        <ListItemTable
-          rows={data}
-          onDelete={handleDelete}
-          onUpdate={handleUpdates}
-        />
+    <Box display="flex" flexDirection="column" gap={1}>
+      <Form onSubmit={handleSubmit} />
+      <Box my={1}>
+        Total: <b>{new Intl.NumberFormat().format(total)}</b>
       </Box>
-    </Container>
+      <ListItemTable
+        rows={data}
+        onDelete={handleDelete}
+        onUpdate={handleUpdates}
+      />
+    </Box>
   );
 }
