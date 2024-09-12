@@ -78,7 +78,6 @@ export default function ListItem({ rows, onDelete, onUpdate }: ListItemProps) {
       sx={{
         height: 700,
         width: "100%",
-        border: "2px solid #eee",
         borderRadius: 2,
       }}
     >
