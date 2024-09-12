@@ -4,9 +4,10 @@ import { useFormik } from "formik";
 import { ItemType } from "./item-service";
 import { Alert, Box, Button, TextField } from "@mui/material";
 import { useRef } from "react";
+import { STATUS } from "./utils/sortItem";
 
 export type FormProps = {
-  onSubmit: (value: ItemType) => Promise<void>;
+  onSubmit: (value: ItemType) => Promise<any>;
 };
 
 export default function Form({ onSubmit }: FormProps) {
@@ -16,6 +17,7 @@ export default function Form({ onSubmit }: FormProps) {
       name: "",
       cost: 0,
       id: "",
+      status: STATUS[0],
     },
     onSubmit: (values, { resetForm }) => {
       onSubmit(values).then(() => {

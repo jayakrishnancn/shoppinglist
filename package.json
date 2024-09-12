@@ -18,7 +18,8 @@
     "formik": "^2.4.6",
     "next": "14.2.8",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-toastify": "^10.0.5"
   },
   "devDependencies": {
     "@types/node": "^20",

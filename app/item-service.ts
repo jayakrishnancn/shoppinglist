@@ -3,17 +3,26 @@ import {
   addDoc,
   doc,
   collection,
-  deleteDoc,
   getDocs,
   QueryDocumentSnapshot,
   DocumentData,
-  updateDoc,
+  writeBatch,
 } from "firebase/firestore";
+import { sortItems } from "./utils/sortItem";
+import { Cache } from "./utils/Cache";
+
+export type StatusType =
+  | "TODO - Distant future"
+  | "TODO - Near future"
+  | "IN PROGRESS"
+  | "COMPLETED"
+  | "UNKNOWN";
 
 export type ItemType = {
   id: string;
   name: string;
   cost: number;
+  status: StatusType;
 };
 
 export type Response<T> = {
@@ -21,109 +30,64 @@ export type Response<T> = {
   data: T;
 };
 
-class Cache {
-  items = {} as { [id: string]: ItemType };
-
-  set(items: ItemType[]) {
-    console.log("setting to cache", items);
-    if (items) {
-      this.items = {};
-      items.forEach((item) => {
-        this.items[item.id] = item;
-      });
-    }
-  }
-
-  get(): ItemType[] {
-    console.log("serving from cache", this.items);
-    if (!this.items) {
-      return [];
-    }
-    return Object.entries(this.items).map(([id, item]) => ({
-      ...item,
-      id,
-    }));
-  }
-
-  delete(ids: string[]) {
-    ids.forEach((id) => {
-      if (this.items[id]) {
-        delete this.items[id];
-      }
-    });
-    console.log("deleted from cache", ids, this.items);
-  }
-
-  update(newItem: ItemType) {
-    this.items[newItem.id] = newItem;
-    console.log("updated cache", newItem, this.items);
-  }
-}
 const cache = new Cache();
 
-export async function saveItem(
-  userId: string,
-  itemData: ItemType,
-): Promise<Response<null>> {
-  const { id, ...item } = itemData;
-  console.log("saving...", userId, id, item);
-
-  return addDoc(collection(firestoreDb, userId), item)
-    .then(() => {
-      return {
-        status: 200,
-        data: null,
-      };
-    })
-    .catch((error) => {
-      console.log(error);
-      return {
-        status: 500,
-        data: null,
-      };
-    });
-}
-
-export async function getItems(
-  userId: string,
-): Promise<Response<ItemType[] | null> | null> {
+export async function getItems(userId: string): Promise<ItemType[]> {
+  console.log("Fetching...", userId);
   const querySnapshot = await getDocs(collection(firestoreDb, userId));
-  const items = [] as ItemType[];
+  let items = [] as ItemType[];
   querySnapshot.forEach(
     (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) => {
       const data = doc.data();
-      items.push({ name: data.name, cost: data.cost, id: doc.id });
-    },
+      items.push({
+        name: data.name,
+        cost: data.cost,
+        id: doc.id,
+        status: data.status ?? "UNKNOWN",
+      });
+    }
   );
+  items = sortItems(items, "status", "ASC");
+  cache.clear();
   cache.set(items);
-  return { status: 200, data: items };
+  return cache.get();
+}
+
+export async function saveItem(
+  userId: string,
+  items: ItemType
+): Promise<ItemType[]> {
+  console.log("creating...", userId, items);
+  const { id, ...item } = items;
+  await addDoc(collection(firestoreDb, userId), item);
+  cache.set([items]);
+  return cache.get();
 }
 
 export async function updateItems(
   userId: string,
-  itemData: ItemType,
-): Promise<Response<ItemType[]>> {
-  const { id, ...item } = itemData;
-  console.log("Update Items...", id, item);
-  const docRef = doc(firestoreDb, userId, id);
-  await updateDoc(docRef, item);
-  cache.update(itemData);
-
-  return Promise.resolve({ status: 200, data: cache.get() });
+  items: ItemType[]
+): Promise<ItemType[]> {
+  console.log("Updating...", userId, items);
+  const batch = writeBatch(firestoreDb);
+  items.forEach(({ id, ...item }) => {
+    const docRef = doc(firestoreDb, userId, id);
+    batch.update(docRef, item);
+  });
+  await batch.commit();
+  cache.updates(items);
+  return cache.get();
 }
 
 export async function deleteItems(
   userId: string,
-  ids: string[],
-): Promise<Response<ItemType[]>> {
+  ids: string[]
+): Promise<ItemType[]> {
   console.log("Deleting...", userId, ids);
-
-  const responses = ids.map((id) => {
-    deleteDoc(doc(firestoreDb, userId, id));
-  });
-  await Promise.all(responses);
+  const batch = writeBatch(firestoreDb);
+  ids.forEach((id) => batch.delete(doc(firestoreDb, userId, id)));
+  await batch.commit();
   cache.delete(ids);
   const data = cache.get();
-
-  return Promise.resolve({ status: 200, data });
+  return data;
 }

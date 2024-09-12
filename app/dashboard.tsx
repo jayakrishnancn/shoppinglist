@@ -13,6 +13,7 @@ import {
 } from "./item-service";
 import useAuth from "./firebase/useAuth";
 import { useMetadata } from "./contexts/metadata";
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
   const [data, setData] = useState<ItemType[]>([]);
@@ -20,16 +21,13 @@ export default function Dashboard() {
   const { user } = useAuth();
   const userId = user?.uid ?? "";
 
-  const setDataItemFromRes = (res: Response<ItemType[] | null> | null) => {
-    setData(res?.data ?? []);
-  };
   const getItemsFromServer = (userId: string) => {
     if (!userId) {
       return;
     }
     setIsLoading(true);
     getItems(userId)
-      .then(setDataItemFromRes)
+      .then(setData)
       .finally(() => {
         setIsLoading(false);
       });
@@ -47,7 +45,12 @@ export default function Dashboard() {
   const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
     return saveItem(userId, item)
-      .then(setDataItemFromRes)
+      .then(setData)
+      .then(() => toast.info("Added new item to list."))
+      .catch((error) => {
+        console.error(error);
+        toast.error("Error saving item to database.");
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -57,17 +60,28 @@ export default function Dashboard() {
     console.log(ids);
     setIsLoading(true);
     return deleteItems(userId, ids)
-      .then(setDataItemFromRes)
+      .then(setData)
+      .then(() => 
+        toast.info("Deleted items from list."))
+      .catch((error) => {
+        console.error(error);
+        toast.error("Error deleting list to database.");
+      })
       .finally(() => {
         setIsLoading(false);
       });
   };
 
-  const handleUpdate = async (newData: ItemType) => {
-    console.log(newData);
+  const handleUpdates = async (newData: ItemType[]) => {
     setIsLoading(true);
     return updateItems(userId, newData)
-      .then(() => getItemsFromServer(userId))
+      .then(setData)
+      .then((res) => 
+        toast.info("Updated items of the list."))
+      .catch((error) => {
+        console.error(error);
+        toast.error("Error updating items to database.");
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -80,7 +94,11 @@ export default function Dashboard() {
         <Box my={1}>
           Total: <b>{new Intl.NumberFormat().format(total)}</b>
         </Box>
-        <ListItem rows={data} onDelete={handleDelete} onUpdate={handleUpdate} />
+        <ListItem
+          rows={data}
+          onDelete={handleDelete}
+          onUpdate={handleUpdates}
+        />
       </Box>
     </Container>
   );

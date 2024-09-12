@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "./navbar";
+import { ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.min.css";
 
 export const metadata: Metadata = {
   title: "Shopping List",
@@ -15,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <ToastContainer />
         <NavBar />
         {children}
       </body>
