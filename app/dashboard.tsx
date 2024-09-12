@@ -45,7 +45,7 @@ export default function Dashboard() {
     setIsLoading(true);
     return saveItem(userId, item)
       .then(()=>getItemsFromServer(userId))
-      .then(() => toast.info("Added new item to list."))
+      .then(() => toast.success("Added new item to list."))
       .catch((error) => {
         console.error(error);
         toast.error("Error saving item to database.");
@@ -61,7 +61,7 @@ export default function Dashboard() {
     return deleteItems(userId, ids)
       .then(setData)
       .then(() => 
-        toast.info("Deleted items from list."))
+        toast.success("Deleted items from list."))
       .catch((error) => {
         console.error(error);
         toast.error("Error deleting list to database.");
@@ -76,7 +76,7 @@ export default function Dashboard() {
     return updateItems(userId, newData)
       .then(setData)
       .then((res) => 
-        toast.info("Updated items of the list."))
+        toast.success("Updated items of the list."))
       .catch((error) => {
         console.error(error);
         toast.error("Error updating items to database.");
