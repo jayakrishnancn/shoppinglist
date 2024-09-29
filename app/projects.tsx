@@ -86,6 +86,7 @@ const ProjectList: FunctionComponent<ProjectListProps> = ({ userId }) => {
       <ListItem
         buttons={{
           enableStatusChange: false,
+          customButtons: () => null,
         }}
         rows={projects}
         onDelete={handleDelete}

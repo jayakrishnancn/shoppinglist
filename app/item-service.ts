@@ -6,7 +6,6 @@ import {
   QueryDocumentSnapshot,
   DocumentData,
   writeBatch,
-  addDoc,
   setDoc,
 } from "firebase/firestore";
 import { sortItems } from "./utils/sortItem";
@@ -66,13 +65,19 @@ export async function getItems(
 export async function saveItem(
   userId: string,
   projectId: string,
-  items: ItemType
+  items: ItemType[]
 ): Promise<void> {
-  console.log("creating...", userId, items);
-  items.updatedAt = Date.now();
-  items.createdAt = Date.now();
-  const { id: _, ...item } = items;
-  await addDoc(collection(firestoreDb, userId, projectId, LIST), item);
+  const batch = writeBatch(firestoreDb);
+  for (const item of items) {
+    console.log("creating...", userId, item);
+    item.updatedAt = Date.now();
+    item.createdAt = Date.now();
+    const { id: _, ...itemWithoutId } = item;
+    const col = collection(firestoreDb, userId, projectId, LIST);
+    const ref = doc(col);
+    batch.set(ref, itemWithoutId);
+  }
+  await batch.commit();
 }
 
 export async function updateItems(

@@ -1,12 +1,23 @@
 "use client";
-import { Box, Button, ButtonGroup } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
 import ListItemTable from "../../listItems";
 import Form from "../../Form";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   deleteItems,
   getItems,
+  getProjects,
   ItemType,
+  ProjectType,
   saveItem,
   updateItems,
 } from "../../item-service";
@@ -17,6 +28,19 @@ export default function Dashboard({ params }: any) {
   const [data, setData] = useState<ItemType[]>([]);
   const { setIsLoading } = useMetadata();
   const { userId, projectId } = params;
+  const [projects, setProjects] = useState([] as ProjectType[]);
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+    setIsLoading(true);
+    getProjects(userId)
+      .then(setProjects)
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [userId]);
 
   const getItemsFromServer = useCallback(
     (userId: string, projectId: string) => {
@@ -56,7 +80,7 @@ export default function Dashboard({ params }: any) {
 
   const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
-    return saveItem(userId, projectId, item)
+    return saveItem(userId, projectId, [item])
       .then(() => getItemsFromServer(userId, projectId))
       .then(() =>
         toast.success("Added new item to list.", { theme: "colored" })
@@ -103,6 +127,74 @@ export default function Dashboard({ params }: any) {
       });
   };
 
+  const handleCopy = async ({
+    targetProjectId,
+    sourceProjectId,
+    items,
+  }: {
+    targetProjectId: string;
+    items: ItemType[];
+    sourceProjectId: string;
+  }) => {
+    setIsLoading(true);
+    return saveItem(userId, targetProjectId, items)
+      .then(() =>
+        deleteItems(
+          userId,
+          sourceProjectId,
+          items.map((i) => i.id)
+        )
+      )
+      .then(() => getItemsFromServer(userId, projectId))
+      .then(() => {
+        toast.success("Successfully copied items");
+      })
+      .catch((error) => {
+        toast.error("Error: " + error?.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+  const CopyButton = ({
+    hasRowSelection,
+    selectedRowValues,
+  }: {
+    hasRowSelection: boolean;
+    selectedRowValues: ItemType[];
+  }) => {
+    return (
+      projects?.length > 0 && (
+        <FormControl size="small">
+          <InputLabel id="demo-simple-select-Move">Move to Project</InputLabel>
+          <Select
+            disabled={!hasRowSelection}
+            labelId="demo-simple-select-Move"
+            label="Move to Project"
+            value={projectId}
+            onChange={(event: SelectChangeEvent) => {
+              if (!hasRowSelection) {
+                return;
+              }
+              handleCopy({
+                targetProjectId: event.target.value,
+                items: selectedRowValues,
+                sourceProjectId: projectId,
+              });
+            }}
+            size="small"
+          >
+            {projects.map((project) => (
+              <MenuItem key={project.id as string} value={project.id}>
+                {project.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )
+    );
+  };
+
   return (
     <Box
       display="flex"
@@ -136,8 +228,10 @@ export default function Dashboard({ params }: any) {
         onUpdate={handleUpdates}
         buttons={{
           enableStatusChange: true,
+          customButtons: CopyButton,
         }}
       />
+
       <Box
         position="fixed"
         bottom={0}

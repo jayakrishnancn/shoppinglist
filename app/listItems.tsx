@@ -12,6 +12,7 @@ import { ItemType, ProjectType, StatusType } from "./item-service";
 import { STATUS } from "./utils/sortItem";
 import ConfirmationBox from "./components/ConfirmationBox";
 import { RemoveCircle } from "@mui/icons-material";
+import { ReactNode } from "react";
 
 type ListItemProps = {
   rows: ItemType[] | ProjectType[];
@@ -20,6 +21,13 @@ type ListItemProps = {
   onUpdate: (newValue: ItemType[] | ProjectType[]) => Promise<any>;
   buttons: {
     enableStatusChange: boolean;
+    customButtons: ({
+      hasRowSelection,
+      selectedRowValues,
+    }: {
+      hasRowSelection: boolean;
+      selectedRowValues: ItemType[];
+    }) => ReactNode;
   };
 };
 
@@ -128,7 +136,7 @@ export default function ListItem({
 function ListItems({
   onDelete,
   onUpdate,
-  buttons: { enableStatusChange },
+  buttons: { enableStatusChange, customButtons },
 }: Pick<ListItemProps, "onDelete" | "onUpdate" | "buttons">) {
   const apiRef = useGridApiContext();
   const selectedRowValues = Array.from(
@@ -170,7 +178,7 @@ function ListItems({
           </Select>
         </FormControl>
       )}
-
+      {customButtons?.({ selectedRowValues, hasRowSelection })}
       <ConfirmationBox
         title="Confirm"
         description={
@@ -179,7 +187,7 @@ function ListItems({
             {selectedRowValues.map((item) => (
               <Box display="flex" justifyContent="space-between" key={item.id}>
                 <div>{item.name}</div>
-                <div>&#2352;{item.cost}</div>
+                {item?.cost && <div>&#2352;{item?.cost}</div>}
               </Box>
             ))}
           </Box>
