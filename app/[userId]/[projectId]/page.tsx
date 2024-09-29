@@ -1,7 +1,7 @@
 "use client";
 import { Box, Button, ButtonGroup } from "@mui/material";
-import ListItemTable from "./listItems";
-import Form from "./Form";
+import ListItemTable from "../../listItems";
+import Form from "../../Form";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   deleteItems,
@@ -9,24 +9,22 @@ import {
   ItemType,
   saveItem,
   updateItems,
-} from "./item-service";
-import useAuth from "./firebase/useAuth";
-import { useMetadata } from "./contexts/metadata";
+} from "../../item-service";
+import { useMetadata } from "../../contexts/metadata";
 import { toast } from "react-toastify";
 
-export default function Dashboard() {
+export default function Dashboard({ params }: any) {
   const [data, setData] = useState<ItemType[]>([]);
   const { setIsLoading } = useMetadata();
-  const { user } = useAuth();
-  const userId = user?.uid ?? "";
+  const { userId, projectId } = params;
 
   const getItemsFromServer = useCallback(
-    (userId: string) => {
-      if (!userId) {
+    (userId: string, projectId: string) => {
+      if (!userId || !projectId) {
         return;
       }
       setIsLoading(true);
-      getItems(userId)
+      getItems(userId, projectId)
         .then(setData)
         .finally(() => {
           setIsLoading(false);
@@ -35,7 +33,10 @@ export default function Dashboard() {
     [setIsLoading]
   );
 
-  useEffect(() => getItemsFromServer(userId), [userId, getItemsFromServer]);
+  useEffect(
+    () => getItemsFromServer(userId, projectId),
+    [userId, getItemsFromServer, projectId]
+  );
   const { total, completed, future } = useMemo(
     () =>
       data && data.length > 0
@@ -55,8 +56,8 @@ export default function Dashboard() {
 
   const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
-    return saveItem(userId, item)
-      .then(() => getItemsFromServer(userId))
+    return saveItem(userId, projectId, item)
+      .then(() => getItemsFromServer(userId, projectId))
       .then(() =>
         toast.success("Added new item to list.", { theme: "colored" })
       )
@@ -72,7 +73,7 @@ export default function Dashboard() {
   const handleDelete = async (ids: string[]) => {
     console.log(ids);
     setIsLoading(true);
-    return deleteItems(userId, ids)
+    return deleteItems(userId, projectId, ids)
       .then(setData)
       .then(() =>
         toast.success("Deleted items from list.", { theme: "colored" })
@@ -86,9 +87,9 @@ export default function Dashboard() {
       });
   };
 
-  const handleUpdates = async (newData: ItemType[]) => {
+  const handleUpdates = async (newData: any[]) => {
     setIsLoading(true);
-    return updateItems(userId, newData)
+    return updateItems(userId, projectId, newData)
       .then(setData)
       .then(() =>
         toast.success("Updated items of the list.", { theme: "colored" })
@@ -103,7 +104,14 @@ export default function Dashboard() {
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={1} mb="100px">
+    <Box
+      display="flex"
+      maxWidth="lg"
+      mx="auto"
+      flexDirection="column"
+      gap={1}
+      mb="100px"
+    >
       <Box my={1}>
         <ButtonGroup
           color="inherit"
@@ -126,6 +134,9 @@ export default function Dashboard() {
         rows={data}
         onDelete={handleDelete}
         onUpdate={handleUpdates}
+        buttons={{
+          enableStatusChange: true,
+        }}
       />
       <Box
         position="fixed"

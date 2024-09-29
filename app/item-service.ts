@@ -1,15 +1,16 @@
 import { firestoreDb } from "./firebase/config";
 import {
-  addDoc,
   doc,
   collection,
   getDocs,
   QueryDocumentSnapshot,
   DocumentData,
   writeBatch,
+  addDoc,
+  setDoc,
 } from "firebase/firestore";
 import { sortItems } from "./utils/sortItem";
-import { Cache } from "./utils/Cache";
+// import { Cache } from "./utils/Cache";
 
 export type StatusType =
   | "Todo - Near future"
@@ -27,11 +28,22 @@ export type ItemType = {
   updatedAt?: number;
 };
 
-const cache = new Cache();
+export type ProjectType = {
+  id: string;
+  name: string;
+  sharedWith: string[];
+};
 
-export async function getItems(userId: string): Promise<ItemType[]> {
+const LIST = "LIST";
+
+export async function getItems(
+  userId: string,
+  projectId: string
+): Promise<ItemType[]> {
   console.log("Fetching...", userId);
-  const querySnapshot = await getDocs(collection(firestoreDb, userId));
+  const querySnapshot = await getDocs(
+    collection(firestoreDb, userId, projectId, LIST)
+  );
   let items = [] as ItemType[];
   querySnapshot.forEach(
     (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) => {
@@ -48,21 +60,24 @@ export async function getItems(userId: string): Promise<ItemType[]> {
   );
   items = sortItems(items, "updatedAt", "DESC");
   items = sortItems(items, "status");
-  cache.clear();
-  cache.set(items);
-  return cache.get();
+  return items;
 }
 
-export async function saveItem(userId: string, items: ItemType): Promise<void> {
+export async function saveItem(
+  userId: string,
+  projectId: string,
+  items: ItemType
+): Promise<void> {
   console.log("creating...", userId, items);
   items.updatedAt = Date.now();
   items.createdAt = Date.now();
   const { id: _, ...item } = items;
-  await addDoc(collection(firestoreDb, userId), item);
+  await addDoc(collection(firestoreDb, userId, projectId, LIST), item);
 }
 
 export async function updateItems(
   userId: string,
+  projectId: string,
   items: ItemType[]
 ): Promise<ItemType[]> {
   console.log("Updating...", userId, items);
@@ -71,23 +86,89 @@ export async function updateItems(
     listItem.updatedAt = Date.now();
     listItem.createdAt = listItem.createdAt || Date.now();
     const { id, ...item } = listItem;
-    const docRef = doc(firestoreDb, userId, id);
+    const docRef = doc(firestoreDb, userId, projectId, LIST, id);
     batch.update(docRef, item);
   });
   await batch.commit();
-  cache.updates(items);
-  return cache.get();
+  return getItems(userId, projectId);
 }
 
 export async function deleteItems(
   userId: string,
+  projectId: string,
   ids: string[]
 ): Promise<ItemType[]> {
   console.log("Deleting...", userId, ids);
   const batch = writeBatch(firestoreDb);
-  ids.forEach((id) => batch.delete(doc(firestoreDb, userId, id)));
+  ids.forEach((id) =>
+    batch.delete(doc(firestoreDb, userId, projectId, LIST, id))
+  );
   await batch.commit();
-  cache.delete(ids);
-  const data = cache.get();
-  return data;
+  return getItems(userId, projectId);
+}
+
+export async function getProjects(userId: string) {
+  const querySnapshot = await getDocs(collection(firestoreDb, userId));
+  const items = [] as ProjectType[];
+  querySnapshot.forEach(
+    (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) => {
+      const data = doc.data();
+      items.push({
+        name: data.name,
+        id: doc.id,
+        sharedWith: [],
+      });
+    }
+  );
+  return items;
+}
+
+export async function addProject(
+  userId: string,
+  projectId: string
+): Promise<void> {
+  const item = {
+    id: projectId,
+    name: projectId,
+    sharedWith: [],
+  } as ProjectType;
+  console.log("creating...", userId, item);
+  await setDoc(doc(firestoreDb, userId, projectId), item);
+}
+
+export async function deleteProjects(
+  userId: string,
+  ids: string[]
+): Promise<ProjectType[]> {
+  console.log("Deleting...", userId, ids);
+
+  const batch = writeBatch(firestoreDb);
+  for (const id of ids) {
+    const querySnapshot = await getDocs(
+      collection(firestoreDb, userId, id, LIST)
+    );
+
+    querySnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    batch.delete(doc(firestoreDb, userId, id));
+    batch.delete(doc(firestoreDb, userId, id));
+  }
+  await batch.commit();
+
+  return getProjects(userId);
+}
+
+export async function updateProject(
+  userId: string,
+  items: ProjectType[]
+): Promise<ProjectType[]> {
+  console.log("Updating...", userId, items);
+  const batch = writeBatch(firestoreDb);
+  items.forEach((project) => {
+    const docRef = doc(firestoreDb, userId, project.id);
+    batch.update(docRef, project);
+  });
+  await batch.commit();
+  return getProjects(userId);
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -11,6 +10,7 @@ import useAuth from "./firebase/useAuth";
 import { auth } from "./firebase/config";
 import Loading from "./Loading";
 import { Avatar } from "@mui/material";
+import Link from "next/link";
 
 export default function NavBar() {
   const { user } = useAuth();
@@ -33,7 +33,7 @@ export default function NavBar() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Shopping List
+            <Link href="/">Shopping List</Link>
           </Typography>
           {user && (
             <Box display="flex" gap={1}>
