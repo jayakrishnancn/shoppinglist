@@ -3,12 +3,13 @@ import { Container } from "@mui/material";
 import Login from "./login/page";
 import useAuth from "./firebase/useAuth";
 import ProjectList from "./projects";
+import Loading from "./Loading";
 
 export default function Home() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return Loading;
   }
 
   return (

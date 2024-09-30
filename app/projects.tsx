@@ -11,13 +11,14 @@ import ListItem from "./listItems";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import FormProject from "./FormProject";
+import { useMetadata } from "./contexts/metadata";
 
 interface ProjectListProps {
   userId: string;
 }
 
 const ProjectList: FunctionComponent<ProjectListProps> = ({ userId }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const { setIsLoading, isLoading } = useMetadata();
   const [projects, setProjects] = useState<ProjectType[]>([]);
   const handleDelete = async (ids: string[]) => {
     console.log(ids);

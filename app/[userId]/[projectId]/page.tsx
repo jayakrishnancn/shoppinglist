@@ -23,6 +23,7 @@ import {
 } from "../../item-service";
 import { useMetadata } from "../../contexts/metadata";
 import { toast } from "react-toastify";
+import { ArrowBack } from "@mui/icons-material";
 
 export default function Dashboard({ params }: any) {
   const [data, setData] = useState<ItemType[]>([]);
@@ -204,7 +205,12 @@ export default function Dashboard({ params }: any) {
       gap={1}
       mb="100px"
     >
-      <Box my={1}>
+      <Box my={1} gap={1} display="flex" flexDirection="column">
+        <div>
+          <Button href="/" variant="contained" startIcon={<ArrowBack />}>
+            Back
+          </Button>
+        </div>
         <ButtonGroup
           color="inherit"
           fullWidth
