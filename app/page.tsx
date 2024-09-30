@@ -9,7 +9,7 @@ export default function Home() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return Loading;
+    return <Loading />;
   }
 
   return (

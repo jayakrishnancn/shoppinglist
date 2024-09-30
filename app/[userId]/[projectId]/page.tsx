@@ -25,8 +25,56 @@ import { useMetadata } from "../../contexts/metadata";
 import { toast } from "react-toastify";
 import { ArrowBack } from "@mui/icons-material";
 
+interface DataItem {
+  id: string;
+  cost: number;
+  status: string;
+}
+
+interface Summary {
+  total: number;
+  completed: number;
+  future: number;
+}
+
+interface SummaryResult {
+  overall: Summary;
+  selected: Summary;
+}
+const initialSummary: Summary = { total: 0, completed: 0, future: 0 };
+
+const calculateSummary = (
+  data: DataItem[],
+  selectedRows: (string | number)[]
+): SummaryResult => {
+  return data.reduce(
+    (prev, curr) => {
+      const cost = Math.max(curr.cost, 0);
+      const isCompleted = curr.status === "Completed";
+      const isSelected = selectedRows.includes(curr.id);
+
+      return {
+        overall: {
+          total: prev.overall.total + cost,
+          completed: prev.overall.completed + (isCompleted ? cost : 0),
+          future: prev.overall.future + (!isCompleted ? cost : 0),
+        },
+        selected: {
+          total: prev.selected.total + (isSelected ? cost : 0),
+          completed:
+            prev.selected.completed + (isSelected && isCompleted ? cost : 0),
+          future:
+            prev.selected.future + (isSelected && !isCompleted ? cost : 0),
+        },
+      };
+    },
+    { overall: initialSummary, selected: initialSummary }
+  );
+};
+
 export default function Dashboard({ params }: any) {
   const [data, setData] = useState<ItemType[]>([]);
+  const [selectedRows, setSelectedRows] = useState<(string | number)[]>([]);
   const { setIsLoading } = useMetadata();
   const { userId, projectId } = params;
   const [projects, setProjects] = useState([] as ProjectType[]);
@@ -41,7 +89,7 @@ export default function Dashboard({ params }: any) {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [userId]);
+  }, [setIsLoading, userId]);
 
   const getItemsFromServer = useCallback(
     (userId: string, projectId: string) => {
@@ -62,22 +110,16 @@ export default function Dashboard({ params }: any) {
     () => getItemsFromServer(userId, projectId),
     [userId, getItemsFromServer, projectId]
   );
-  const { total, completed, future } = useMemo(
-    () =>
-      data && data.length > 0
-        ? data.reduce(
-            (prev, curr) => ({
-              total: prev.total + Math.max(curr.cost, 0),
-              completed:
-                prev.completed + (curr.status === "Completed" ? curr.cost : 0),
-              future:
-                prev.future + (curr.status !== "Completed" ? curr.cost : 0),
-            }),
-            { total: 0, completed: 0, future: 0 }
-          )
-        : { total: 0, completed: 0, future: 0 },
-    [data]
-  );
+
+  const {
+    overall: { total, completed, future },
+    selected,
+  } = useMemo(() => {
+    if (!data || data.length === 0) {
+      return { overall: initialSummary, selected: initialSummary };
+    }
+    return calculateSummary(data, selectedRows);
+  }, [data, selectedRows]);
 
   const handleSubmit = async (item: ItemType) => {
     setIsLoading(true);
@@ -196,6 +238,8 @@ export default function Dashboard({ params }: any) {
     );
   };
 
+  const tableKey = useMemo(() => JSON.stringify(data), [data]);
+
   return (
     <Box
       display="flex"
@@ -227,11 +271,32 @@ export default function Dashboard({ params }: any) {
             Total: <b>{new Intl.NumberFormat().format(total)}</b>
           </Button>
         </ButtonGroup>
+        <ButtonGroup
+          color="inherit"
+          fullWidth
+          size="small"
+          aria-label="Small button group"
+        >
+          <Button>
+            Selected Pending:{" "}
+            <b>{new Intl.NumberFormat().format(selected.future)}</b>
+          </Button>
+          <Button>
+            Selected Completed:{" "}
+            <b>{new Intl.NumberFormat().format(selected.completed)}</b>
+          </Button>
+          <Button>
+            Selected Total:{" "}
+            <b>{new Intl.NumberFormat().format(selected.total)}</b>
+          </Button>
+        </ButtonGroup>
       </Box>
       <ListItemTable
+        key={tableKey}
         rows={data}
         onDelete={handleDelete}
         onUpdate={handleUpdates}
+        onSelectionChange={(items) => setSelectedRows([...items])}
         buttons={{
           enableStatusChange: true,
           customButtons: CopyButton,

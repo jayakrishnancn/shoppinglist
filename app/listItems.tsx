@@ -19,6 +19,7 @@ type ListItemProps = {
   columns?: GridColDef[] | undefined;
   onDelete: (ids: string[]) => void;
   onUpdate: (newValue: ItemType[] | ProjectType[]) => Promise<any>;
+  onSelectionChange: (rowSelectionModel: readonly (string | number)[]) => void;
   buttons: {
     enableStatusChange: boolean;
     customButtons: ({
@@ -53,6 +54,7 @@ export default function ListItem({
   columns,
   onDelete,
   onUpdate,
+  onSelectionChange,
   buttons,
 }: ListItemProps) {
   columns = columns ?? [
@@ -109,6 +111,7 @@ export default function ListItem({
         rows={rows}
         density="compact"
         columns={columns}
+        onRowSelectionModelChange={onSelectionChange}
         pagination
         editMode="row"
         checkboxSelection
