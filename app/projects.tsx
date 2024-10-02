@@ -78,13 +78,14 @@ const ProjectList: FunctionComponent<ProjectListProps> = ({ userId }) => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [userId]);
+  }, [setIsLoading, userId]);
 
   return isLoading ? (
     "Loading projects"
   ) : (
     <Box display="flex" flexDirection="column" gap={1} mb="100px">
       <ListItem
+        onSelectionChange={() => {}}
         buttons={{
           enableStatusChange: false,
           customButtons: () => null,
